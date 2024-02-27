@@ -15,11 +15,11 @@ type UrlService struct {
 	database *db.DB
 }
 
-func NewUrlService(database *db.DB) (UrlService, error) {
+func NewUrlService(database *db.DB) (*UrlService, error) {
 	if database == nil {
-		return UrlService{}, errors.New("Database has not been provided")
+		return &UrlService{}, errors.New("Database has not been provided")
 	}
-	return UrlService{database}, nil
+	return &UrlService{database}, nil
 }
 
 func (service *UrlService) CreateNewURL(originalUrl string) (string, error) {

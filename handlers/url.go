@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	"github.com/naqet/url-shortener/services"
@@ -26,6 +27,7 @@ func (h *UrlHandler) Post(w http.ResponseWriter, r *http.Request) {
 	key, err := h.service.CreateNewURL(originalUrl)
 
 	if err != nil {
+        slog.Error(err.Error());
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -35,6 +37,7 @@ func (h *UrlHandler) Post(w http.ResponseWriter, r *http.Request) {
 	jsonData, err := json.Marshal(response)
 
 	if err != nil {
+        slog.Error(err.Error());
 		http.Error(w, "Failed to convert response to JSON", http.StatusInternalServerError)
 		return
 	}
@@ -50,6 +53,7 @@ func (h *UrlHandler) Get(w http.ResponseWriter, r *http.Request) {
 	url, err := h.service.GetURL(key)
 
 	if err != nil {
+        slog.Error(err.Error());
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -63,6 +67,7 @@ func (h *UrlHandler) Get(w http.ResponseWriter, r *http.Request) {
 	jsonData, err := json.Marshal(response)
 
 	if err != nil {
+        slog.Error(err.Error());
 		http.Error(w, "Failed to convert response to JSON", http.StatusInternalServerError)
 		return
 	}
@@ -78,6 +83,7 @@ func (h *UrlHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 	url, err := h.service.GetURL(key)
 
 	if err != nil {
+        slog.Error(err.Error());
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

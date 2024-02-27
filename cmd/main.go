@@ -19,16 +19,30 @@ func main() {
 	defer database.Close()
 	mux := http.NewServeMux()
 
-	urlService, err := services.NewUrlService(database)
+    authService, err := services.NewAuthService(database)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+    authHandler := handlers.NewAuthHandler(authService)
 
-	urlHandler := handlers.NewUrlHandler(&urlService)
-	mux.HandleFunc("POST /short", urlHandler.Post)
-	mux.HandleFunc("GET /short/{key}", urlHandler.Get)
+    mux.HandleFunc("POST /signup", authHandler.SignUp);
+    mux.HandleFunc("POST /login", authHandler.LogIn);
+    mux.HandleFunc("POST /logout", authHandler.LogOut);
+    mux.HandleFunc("POST /refresh", authHandler.Refresh);
+
+	urlService, err := services.NewUrlService(database)
+
+	if err != nil {
+        log.Fatal(err)
+	}
+
+	urlHandler := handlers.NewUrlHandler(urlService)
+	mux.HandleFunc("POST /url", authHandler.Middleware(urlHandler.Post))
+	mux.HandleFunc("GET /url/{key}", authHandler.Middleware(urlHandler.Get))
+
 	mux.HandleFunc("GET /{key}", urlHandler.Redirect)
+
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
