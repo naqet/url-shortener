@@ -40,9 +40,10 @@ func main() {
 	urlHandler := handlers.NewUrlHandler(urlService)
 	mux.HandleFunc("POST /url", authHandler.Middleware(urlHandler.Post))
 	mux.HandleFunc("GET /url/{key}", authHandler.Middleware(urlHandler.Get))
+	mux.HandleFunc("GET /u/{key}", urlHandler.Redirect)
 
-	mux.HandleFunc("GET /{key}", urlHandler.Redirect)
-
+	pagesHandler := handlers.NewPagesHandler(authService);
+    mux.HandleFunc("/", pagesHandler.Home);
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 

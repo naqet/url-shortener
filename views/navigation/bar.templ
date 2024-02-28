@@ -1,0 +1,22 @@
+package navigation;
+
+type Link struct {
+	href  string
+	label string
+}
+
+var links = []Link{{href: "/", label: "Home"}, {href: "/logout", label: "Log out"}}
+
+templ Bar() {
+	<nav>
+		<ul class="flex gap-4 justify-end p-4 text-lg">
+			for _, link := range links {
+                <li>
+                    <a href={templ.URL(link.href)}>
+                    {link.label}
+                    </a>
+                </li>
+			}
+		</ul>
+	</nav>
+}

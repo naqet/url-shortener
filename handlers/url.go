@@ -27,24 +27,30 @@ func (h *UrlHandler) Post(w http.ResponseWriter, r *http.Request) {
 	key, err := h.service.CreateNewURL(originalUrl)
 
 	if err != nil {
-        slog.Error(err.Error());
+		slog.Error(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	response := map[string]string{"newUrl": "http://localhost:3000/" + key}
+	newShortUrl := "http://localhost:3000/u/" + key
 
-	jsonData, err := json.Marshal(response)
+	contentType := r.Header.Get("Hx-Request")
 
-	if err != nil {
-        slog.Error(err.Error());
-		http.Error(w, "Failed to convert response to JSON", http.StatusInternalServerError)
-		return
+	if contentType == "true" {
+		w.Write([]byte(newShortUrl))
+	} else {
+		response := map[string]string{"newUrl": newShortUrl}
+
+		jsonData, err := json.Marshal(response)
+
+		if err != nil {
+			slog.Error(err.Error())
+			http.Error(w, "Failed to convert response to JSON", http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(jsonData)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-
-	w.Write(jsonData)
 }
 
 func (h *UrlHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -53,21 +59,21 @@ func (h *UrlHandler) Get(w http.ResponseWriter, r *http.Request) {
 	url, err := h.service.GetURL(key)
 
 	if err != nil {
-        slog.Error(err.Error());
+		slog.Error(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	response := map[string]string{
 		"id":          url.Id,
-		"key":         "http://localhost:3000/" + url.Key,
+		"key":         "http://localhost:3000/u" + url.Key,
 		"originalUrl": url.OriginalUrl,
 	}
 
 	jsonData, err := json.Marshal(response)
 
 	if err != nil {
-        slog.Error(err.Error());
+		slog.Error(err.Error())
 		http.Error(w, "Failed to convert response to JSON", http.StatusInternalServerError)
 		return
 	}
@@ -83,7 +89,7 @@ func (h *UrlHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 	url, err := h.service.GetURL(key)
 
 	if err != nil {
-        slog.Error(err.Error());
+		slog.Error(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

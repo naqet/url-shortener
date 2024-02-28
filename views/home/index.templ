@@ -1,7 +1,19 @@
 package home;
 
+import "github.com/naqet/url-shortener/views/layout"
+import "github.com/naqet/url-shortener/views/navigation"
+
 templ Index() {
-    <form action="">
-        
-    </form>
+	@layout.Base() {
+		@navigation.Bar()
+		<main class="grid place-items-center px-4">
+			<form class="grid w-full max-w-md gap-2" hx-post="/url" hx-trigger="submit" hx-swap="afterend" hx-target="this">
+				<div class="grid">
+					<label for="url" class="text-center">Type URL to shorten it</label>
+					<input id="url" name="url" type="url"/>
+				</div>
+				<button class="p-2 bg-cyan-300 bg-opacity-40 rounded">Generate</button>
+			</form>
+		</main>
+	}
 }
