@@ -5,17 +5,17 @@ type Link struct {
 	label string
 }
 
-var links = []Link{{href: "/", label: "Home"}, {href: "/logout", label: "Log out"}}
+var links = []Link{{href: "/", label: "Home"}, {href: "/login", label: "Log in"}, {href: "/signin", label: "Sign in"}}
 
 templ Bar() {
 	<nav>
 		<ul class="flex gap-4 justify-end p-4 text-lg">
 			for _, link := range links {
-                <li>
-                    <a href={templ.URL(link.href)}>
-                    {link.label}
-                    </a>
-                </li>
+				<li>
+					<a href={ templ.URL(link.href) }>
+						{ link.label }
+					</a>
+				</li>
 			}
 		</ul>
 	</nav>

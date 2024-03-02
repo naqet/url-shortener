@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -46,6 +47,7 @@ func (handler *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+    w.Header().Add("HX-Redirect", "/dashboard")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -76,6 +78,7 @@ func (handler *AuthHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+    w.Header().Add("HX-Redirect", "/dashboard")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -124,7 +127,23 @@ func (handler *AuthHandler) Middleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+        claims, ok := token.Claims.(jwt.MapClaims);
+
+        if !ok {
+			http.Error(w, "Invalid token", http.StatusUnauthorized);
+            return;
+        }
+
+        id, ok := claims["id"].(string);
+
+        if !ok {
+			http.Error(w, "Invalid token", http.StatusUnauthorized);
+            return;
+        }
+
+        ctx := context.WithValue(r.Context(), "id", id);
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 

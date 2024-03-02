@@ -1,0 +1,30 @@
+package auth;
+
+import "github.com/naqet/url-shortener/views/layout"
+import "github.com/naqet/url-shortener/views/navigation"
+
+templ SignUp() {
+    @layout.Base() {
+        @navigation.Bar()
+		<main class="grid place-items-center px-4">
+			<form class="grid w-full max-w-md gap-2" hx-ext="response-targets" hx-post="/signup" hx-trigger="submit" hx-target-error="#errors" hx-swap="innerHTML">
+				<div class="grid gap-2">
+					<label for="name" class="text-center">Name</label>
+					<input id="name" name="name" autocomplete="name" required/>
+				</div>
+
+				<div class="grid gap-2">
+					<label for="email" class="text-center">Email</label>
+					<input id="email" name="email" type="email" autocomplete="email" required/>
+				</div>
+
+				<div class="grid gap-2">
+					<label for="password" class="text-center">Password</label>
+					<input id="password" name="password" type="password" autocomplete="new-password" required/>
+				</div>
+				<button class="p-2 bg-cyan-300 bg-opacity-40 rounded">Sign up</button>
+			</form>
+            <div id="errors" class="text-red-300 empty:hidden"/>
+		</main>
+    }
+}

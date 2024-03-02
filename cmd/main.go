@@ -44,6 +44,8 @@ func main() {
 
 	pagesHandler := handlers.NewPagesHandler(authService);
     mux.HandleFunc("/", pagesHandler.Home);
+    mux.HandleFunc("/signup", pagesHandler.SignUp);
+    mux.HandleFunc("/login", pagesHandler.Login);
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
