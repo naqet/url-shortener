@@ -1,21 +1,32 @@
 package navigation;
 
 type Link struct {
-	href  string
-	label string
+	href          string
+	label         string
+	forLoggedOnly bool
+	hideForLogged bool
 }
 
-var links = []Link{{href: "/", label: "Home"}, {href: "/login", label: "Log in"}, {href: "/signin", label: "Sign in"}}
+var links = []Link{
+	{href: "/", label: "Home"},
+	{href: "/dashboard", label: "Dashboard"},
+	{href: "/login", label: "Log in", hideForLogged: true},
+	{href: "/signin", label: "Sign in", hideForLogged: true},
+	{href: "/logout", label: "Log out", forLoggedOnly: true},
+}
 
-templ Bar() {
+templ Bar(isLogged bool) {
 	<nav>
 		<ul class="flex gap-4 justify-end p-4 text-lg">
 			for _, link := range links {
-				<li>
-					<a href={ templ.URL(link.href) }>
-						{ link.label }
-					</a>
-				</li>
+				if (!isLogged && link.forLoggedOnly) || (isLogged && link.hideForLogged) {
+				} else {
+					<li>
+						<a href={ templ.URL(link.href) }>
+							{ link.label }
+						</a>
+					</li>
+				}
 			}
 		</ul>
 	</nav>

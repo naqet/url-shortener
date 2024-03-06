@@ -1,14 +1,12 @@
 package home;
 
 import "github.com/naqet/url-shortener/views/layout"
-import "github.com/naqet/url-shortener/views/navigation"
 
-templ Index() {
-	@layout.Base() {
-		@navigation.Bar()
+templ Index(isLogged bool) {
+	@layout.Base(isLogged) {
 		<main class="grid place-items-center px-4">
             <h1>Welcome to the url shortener</h1>
-            <a href="/dashboard">Go to the dashboard</a>
+            <a href="/dashboard" class="border border-white p-1 rounded">Go to the dashboard</a>
 		</main>
 	}
 }

@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -76,4 +77,9 @@ func (service *AuthService) ValidateToken(tokenString string, key []byte) (*jwt.
 	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
+}
+
+func (service *AuthService) IsUserLogged(r *http.Request) bool {
+    _, ok := r.Context().Value("id").(string);
+    return ok
 }

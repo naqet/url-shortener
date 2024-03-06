@@ -1,11 +1,9 @@
 package auth;
 
 import "github.com/naqet/url-shortener/views/layout"
-import "github.com/naqet/url-shortener/views/navigation"
 
 templ SignUp() {
-    @layout.Base() {
-        @navigation.Bar()
+    @layout.Base(false) {
 		<main class="grid place-items-center px-4">
 			<form class="grid w-full max-w-md gap-2" hx-ext="response-targets" hx-post="/signup" hx-trigger="submit" hx-target-error="#errors" hx-swap="innerHTML">
 				<div class="grid gap-2">

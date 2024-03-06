@@ -28,7 +28,7 @@ func main() {
 
     mux.HandleFunc("POST /signup", authHandler.SignUp);
     mux.HandleFunc("POST /login", authHandler.LogIn);
-    mux.HandleFunc("POST /logout", authHandler.LogOut);
+    mux.HandleFunc("/logout", authHandler.LogOut);
     mux.HandleFunc("POST /refresh", authHandler.Refresh);
 
 	urlService, err := services.NewUrlService(database)
@@ -38,14 +38,15 @@ func main() {
 	}
 
 	urlHandler := handlers.NewUrlHandler(urlService)
-	mux.HandleFunc("POST /url", authHandler.Middleware(urlHandler.Post))
-	mux.HandleFunc("GET /url/{key}", authHandler.Middleware(urlHandler.Get))
+	mux.HandleFunc("POST /url", authHandler.Middleware(urlHandler.Post, true))
+	mux.HandleFunc("GET /url/{key}", authHandler.Middleware(urlHandler.Get, true))
 	mux.HandleFunc("GET /u/{key}", urlHandler.Redirect)
 
-	pagesHandler := handlers.NewPagesHandler(authService);
-    mux.HandleFunc("/", pagesHandler.Home);
-    mux.HandleFunc("/signup", pagesHandler.SignUp);
-    mux.HandleFunc("/login", pagesHandler.Login);
+	pagesHandler := handlers.NewPagesHandler(authService, urlService);
+    mux.HandleFunc("/", authHandler.Middleware(pagesHandler.Home, false));
+    mux.HandleFunc("/signup", authHandler.Middleware(pagesHandler.SignUp, false));
+    mux.HandleFunc("/login", authHandler.Middleware(pagesHandler.Login, false));
+    mux.HandleFunc("/dashboard", authHandler.Middleware(pagesHandler.Dashboard, false));
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 

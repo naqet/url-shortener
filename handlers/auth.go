@@ -47,7 +47,7 @@ func (handler *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    w.Header().Add("HX-Redirect", "/dashboard")
+	w.Header().Add("HX-Redirect", "/dashboard")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -62,9 +62,9 @@ func (handler *AuthHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 
 	id, err := handler.service.Login(email, password)
 
-    if errors.Is(err, services.ErrorIncorrectEmailOrPass) {
+	if errors.Is(err, services.ErrorIncorrectEmailOrPass) {
 		http.Error(w, "Incorrect email or password", http.StatusUnauthorized)
-    } else if err != nil {
+	} else if err != nil {
 		slog.Error(err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -78,7 +78,7 @@ func (handler *AuthHandler) LogIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    w.Header().Add("HX-Redirect", "/dashboard")
+	w.Header().Add("HX-Redirect", "/dashboard")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -102,22 +102,31 @@ func (handler *AuthHandler) LogOut(w http.ResponseWriter, r *http.Request) {
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	})
-	w.WriteHeader(http.StatusOK)
+    w.Header().Add("HX-Redirect", "/")
+    http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func (handler *AuthHandler) Middleware(next http.HandlerFunc) http.HandlerFunc {
+func (handler *AuthHandler) Middleware(next http.HandlerFunc, shouldBlock bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("access_token")
 
 		if err != nil || cookie.Value == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			if shouldBlock {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			} else {
+				next.ServeHTTP(w, r)
+			}
 			return
 		}
 
 		token, err := handler.service.ValidateToken(cookie.Value, secretKey)
 
 		if !token.Valid {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			if shouldBlock {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			} else {
+				next.ServeHTTP(w, r)
+			}
 			return
 		}
 
@@ -127,21 +136,29 @@ func (handler *AuthHandler) Middleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-        claims, ok := token.Claims.(jwt.MapClaims);
+		claims, ok := token.Claims.(jwt.MapClaims)
 
-        if !ok {
-			http.Error(w, "Invalid token", http.StatusUnauthorized);
-            return;
-        }
+		if !ok {
+			if shouldBlock {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+			} else {
+				next.ServeHTTP(w, r)
+			}
+			return
+		}
 
-        id, ok := claims["id"].(string);
+		id, ok := claims["id"].(string)
 
-        if !ok {
-			http.Error(w, "Invalid token", http.StatusUnauthorized);
-            return;
-        }
+		if !ok {
+			if shouldBlock {
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+			} else {
+				next.ServeHTTP(w, r)
+			}
+			return
+		}
 
-        ctx := context.WithValue(r.Context(), "id", id);
+		ctx := context.WithValue(r.Context(), "id", id)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
